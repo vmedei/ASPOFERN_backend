@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário teste</title>
+</head>
+
+<body>
+    <main>
+        <form id="uploadForm" action="http://127.0.0.1:8000/uploadfiles/" method="POST" enctype="multipart/form-data">
+            <label for="tabelaRefencia">Tabela Referência ASPOFERN</label>
+            <input type="file" id="tabelaRefencia" name="tabelaRefencia"><br><br>
+
+            <label for="tabelaAnsef">Tabela ANSEF</label>
+            <input type="file" id="tabelaAnsef" name="tabelaAnsef"><br><br>
+
+            <label for="semMargemAnsef">Tabela dos sem margem ANSEF</label>
+            <input type="file" id="semMargemAnsef" name="semMargemAnsef"><br><br>
+
+            <label for="sempreOdontoSytem">Plano Sempre e OdontoSystem</label>
+            <input type="file" id="sempreOdontoSytem" name="sempreOdontoSytem"><br><br>
+
+            <label for="unidonto">Plano Uniodonto</label>
+            <input type="file" id="unidonto" name="unidonto"><br><br>
+
+            <label for="consignacoesUnimed">Consignações Unimed</label>
+            <input type="file" id="consignacoesUnimed" name="consignacoesUnimed"><br><br>
+
+            <label for="contratosUnimed">Contratos Unimed:</label>
+            <input type="file" id="contratosUnimed" name="contratosUnimed" multiple><br><br>
+
+            <button type="submit">Enviar</button>
+        </form>
+    </main>
+
+    <script>
+        const websocket = new WebSocket("ws://localhost:8000/ws");
+
+        websocket.onmessage = function (event) {
+            console.log("Message from server: ", event.data);
+            window.location.href = `http://127.0.0.1:8000/download/${event.data}`;
+        };
+
+        websocket.onopen = function (event) {
+            console.log("WebSocket connection established");
+        };
+
+        websocket.onclose = function (event) {
+            console.log("WebSocket connection closed");
+        };
+
+        document.getElementById('uploadForm').onsubmit = function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(this);
+
+            fetch(this.action, {
+                method: this.method,
+                body: formData
+            }).then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 200) {
+                        alert("Files uploaded successfully. Waiting for processing...");
+                    } else {
+                        alert("Error uploading files: " + data.message);
+                    }
+                }).catch(error => {
+                    console.error("Error:", error);
+                    alert("Error uploading files.");
+                });
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,4 @@
+*.venv
+uploads/*
+arquivos_exportados/*
+**/__pycache__/
